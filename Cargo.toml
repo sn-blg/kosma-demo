@@ -1,6 +1,15 @@
 [package]
 name = "kosma-demo"
 version = "0.1.0"
+authors = ["sn-blg"]
 edition = "2021"
+description = "kosma-demo"
+license = "MIT"
 
 [dependencies]
+crossterm = "0.21.0"
+
+[dependencies.tui]
+version = "0.16.0"
+default-features = false
+features = ["crossterm"]
