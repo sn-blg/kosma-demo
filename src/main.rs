@@ -1,5 +1,6 @@
-use crossterm::event::{self, Event, KeyCode};
 use kosma_demo::app::{App, AppResult};
+use kosma_demo::event::{Event, EventHandler};
+use kosma_demo::handler;
 use kosma_demo::tui::Tui;
 use std::io;
 use tui::{backend::CrosstermBackend, Terminal};
@@ -9,17 +10,17 @@ fn main() -> AppResult<()> {
 
     let backend = CrosstermBackend::new(io::stdout());
     let terminal = Terminal::new(backend)?;
-    let mut tui = Tui::new(terminal);
+    let events = EventHandler::new(250);
+    let mut tui = Tui::new(terminal, events);
     tui.init()?;
 
-    loop {
+    while app.running {
         tui.draw(&mut app)?;
-
-        if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('q') => break,
-                _ => {}
-            }
+        match tui.events.next()? {
+            Event::Tick => app.tick(),
+            Event::Key(key_event) => handler::handle_key_events(key_event, &mut app)?,
+            Event::Mouse(_) => {}
+            Event::Resize(_, _) => {}
         }
     }
 
