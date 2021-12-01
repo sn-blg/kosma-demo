@@ -11,11 +11,15 @@ pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 #[derive(Debug)]
 pub struct App {
     pub running: bool,
+    dbg: String,
 }
 
 impl Default for App {
     fn default() -> Self {
-        Self { running: true }
+        Self {
+            running: true,
+            dbg: String::from("none"),
+        }
     }
 }
 
@@ -25,6 +29,10 @@ impl App {
     }
 
     pub fn tick(&self) {}
+
+    pub fn on_left_mouse_up(&mut self, column: u16, row: u16) {
+        self.dbg = format!("mouse - {} : {}", column, row);
+    }
 
     pub fn render<B: Backend>(&mut self, frame: &mut Frame<B>) {
         let chunks = Layout::default()
@@ -39,7 +47,9 @@ impl App {
             .constraints([Constraint::Percentage(10), Constraint::Percentage(90)].as_ref())
             .split(chunks[1]);
 
-        let block = Block::default().borders(Borders::ALL);
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .title(self.dbg.as_ref());
         frame.render_widget(block, right_chunks[0]);
 
         let block = Block::default().borders(Borders::ALL);
